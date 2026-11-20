@@ -1,0 +1,6 @@
+<!-- Semi-octagon screens (the Instinct family and Descent G1, picked up by
+     the SDK's family qualifier): the menu and the Picker title are narrow
+     there, so a shorter phone label. -->
+<strings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://developer.garmin.com/downloads/connect-iq/resources.xsd">
+    <string id="PhoneLabel">Phone no.</string>
+</strings>

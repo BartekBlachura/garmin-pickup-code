@@ -1,0 +1,20 @@
+<resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://developer.garmin.com/downloads/connect-iq/resources.xsd">
+    <!-- Phone app (Connect IQ / Garmin Connect) settings editor. Settings can
+         cap a string's length but have no minimum length or pattern, and a
+         numeric setting cannot tell 000999 from 999. So phone gives a digit
+         keypad with leading zeros kept, maxLength is the upper limit, and
+         PickupData treats anything but exactly 6 or 9 digits as not set.
+         The title states the length: Garmin Connect did not show prompt.
+         No errorMessage: Garmin Connect never shows it for these fields, the
+         keypad and maxLength stop bad input and pasted text is not checked. -->
+    <!-- Watches with analog hands (monkey.jungle): no InPost QR code, so no
+         toggle; otherwise as settings/phone/settings.xml. -->
+    <settings>
+        <setting propertyKey="@Properties.code" title="@Strings.CodeTitle">
+            <settingConfig type="phone" maxLength="6"/>
+        </setting>
+        <setting propertyKey="@Properties.phone" title="@Strings.PhoneTitle">
+            <settingConfig type="phone" maxLength="9"/>
+        </setting>
+    </settings>
+</resources>

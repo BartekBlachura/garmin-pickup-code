@@ -1,0 +1,11 @@
+<strings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://developer.garmin.com/downloads/connect-iq/resources.xsd">
+    <string id="AppName">Kod odbioru</string>
+    <string id="CodeLabel">Kod odbioru</string>
+    <string id="PhoneLabel">Numer telefonu</string>
+    <string id="NotSet">nie ustawiono</string>
+    <string id="PhonePrefix">tel.</string>
+    <string id="CodeTitle">Kod odbioru (6 cyfr)</string>
+    <string id="PhoneTitle">Numer telefonu (9 cyfr, bez kierunkowego)</string>
+    <string id="QrLabel">Kod QR InPost</string>
+    <string id="QrTitle">Kod QR InPost w polu na całym ekranie (wyłącz dla innych automatów)</string>
+</strings>

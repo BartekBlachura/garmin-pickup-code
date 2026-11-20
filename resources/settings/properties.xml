@@ -1,0 +1,12 @@
+<resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://developer.garmin.com/downloads/connect-iq/resources.xsd">
+    <properties>
+        <!-- Digits as strings, so leading zeros survive and a short value can
+             be told from a code that starts with zeros. Empty means not set. -->
+        <property id="code" type="string"></property>
+        <property id="phone" type="string"></property>
+        <!-- The full-screen field shows the InPost QR code of the values. Off by
+             default: the user turns it on for InPost; other parcel lockers take
+             the same code and phone typed in. -->
+        <property id="qr" type="boolean">false</property>
+    </properties>
+</resources>

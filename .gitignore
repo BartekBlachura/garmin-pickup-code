@@ -1,0 +1,23 @@
+# Connect IQ build output
+bin/
+*.prg
+*.prg.debug.xml
+*.iq
+
+# Signing key: never commit
+developer_key*
+*.der
+*.pem
+
+# Tooling
+.serena/
+*.log
+
+# Not part of this repository: these live only in the development
+# repository and must not be committed here.
+CLAUDE.md
+.claude/
+.vscode/
+docs/
+store/
+tools/
