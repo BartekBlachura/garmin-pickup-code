@@ -5,7 +5,7 @@ project.manifest = manifest.xml
 # of most watches, qrlayout/search finds the QR layout at run time; the
 # watches that need otherwise point elsewhere below. settings/phone holds
 # the phone app settings; the watches with analog hands use settings/hands
-# instead, without the InPost QR toggle.
+# instead, without the QR code setting.
 base.resourcePath = resources;settings/phone
 base.sourcePath = source;titletop/y0;qrlayout/search
 

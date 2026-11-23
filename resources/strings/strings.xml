@@ -6,6 +6,14 @@
     <string id="PhonePrefix">Tel.</string>
     <string id="CodeTitle">Pickup code (6 digits)</string>
     <string id="PhoneTitle">Phone number (9 digits, no country code)</string>
-    <string id="QrLabel">InPost QR code</string>
-    <string id="QrTitle">InPost QR code on a full-screen field (off for other parcel lockers)</string>
+    <string id="QrLabel">QR code</string>
+    <string id="QrTitle">QR code on a full-screen field</string>
+    <string id="QrOff">Off</string>
+    <string id="QrInPost">Paczkomat InPost</string>
+    <string id="QrAllegro">Allegro One Box</string>
+    <!-- The service over the QR code (PickupCodeView.drawService): its names
+         from the longest, "|" between them; the first that fits is shown.
+         The same in resources-pol. -->
+    <string id="ServiceInPost">Paczkomat InPost|InPost</string>
+    <string id="ServiceAllegro">Allegro One Box|Allegro One|Allegro</string>
 </strings>

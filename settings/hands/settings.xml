@@ -7,8 +7,8 @@
          The title states the length: Garmin Connect did not show prompt.
          No errorMessage: Garmin Connect never shows it for these fields, the
          keypad and maxLength stop bad input and pasted text is not checked. -->
-    <!-- Watches with analog hands (monkey.jungle): no InPost QR code, so no
-         toggle; otherwise as settings/phone/settings.xml. -->
+    <!-- Watches with analog hands (monkey.jungle): no QR code, so no
+         QR code setting; otherwise as settings/phone/settings.xml. -->
     <settings>
         <setting propertyKey="@Properties.code" title="@Strings.CodeTitle">
             <settingConfig type="phone" maxLength="6"/>

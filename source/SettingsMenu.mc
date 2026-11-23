@@ -4,8 +4,9 @@ import Toybox.WatchUi;
 
 // On-device settings (AppBase.getSettingsView): a three-item menu where two
 // items open the system Picker (digitPicker) for the pickup code or the
-// phone number, and the third (a toggle) turns the InPost QR code on or off;
-// the watches with analog hands (HANDS) show no QR code and no toggle.
+// phone number, and the third cycles the QR code setting (off, InPost,
+// Allegro One), its sub-label showing the current choice; the watches with
+// analog hands (HANDS) show no QR code and no such item.
 
 class SettingsMenu extends WatchUi.Menu2 {
 
@@ -15,7 +16,7 @@ class SettingsMenu extends WatchUi.Menu2 {
         addItem(new WatchUi.MenuItem(Rez.Strings.PhoneLabel, null, :phone, null));
         // No QR code under analog hands (PickupCodeView.reload).
         if (!HANDS) {
-            addItem(new WatchUi.ToggleMenuItem(Rez.Strings.QrLabel, null, :qr, PickupData.isQr(), null));
+            addItem(new WatchUi.MenuItem(Rez.Strings.QrLabel, null, :qr, null));
         }
         refresh();
     }
@@ -24,6 +25,16 @@ class SettingsMenu extends WatchUi.Menu2 {
     function refresh() as Void {
         setSubLabel(:code, PickupData.getCode());
         setSubLabel(:phone, PickupData.getPhone());
+        if (!HANDS) {
+            var qrType = PickupData.getQrType();
+            var item = getItem(findItemById(:qr));
+            if (item != null) {
+                item.setSubLabel(WatchUi.loadResource(
+                    qrType == PickupData.QR_INPOST ? Rez.Strings.QrInPost
+                    : qrType == PickupData.QR_ALLEGRO ? Rez.Strings.QrAllegro
+                    : Rez.Strings.QrOff) as String);
+            }
+        }
     }
 
     private function setSubLabel(id as Symbol, digits as String) as Void {
@@ -52,8 +63,9 @@ class SettingsMenuDelegate extends WatchUi.Menu2InputDelegate {
         } else if (id == :phone) {
             edit(Rez.Strings.PhoneLabel, PickupData.PHONE_LEN, method(:onPhone));
         } else if (id == :qr) {
-            // The item has already switched itself.
-            Properties.setValue(PickupData.PROP_QR, (item as WatchUi.ToggleMenuItem).isEnabled());
+            Properties.setValue(PickupData.PROP_QR_TYPE,
+                (PickupData.getQrType() + 1) % PickupData.QR_COUNT);
+            _menu.refresh();
         }
     }
 

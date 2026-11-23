@@ -4,13 +4,14 @@ import Toybox.Math;
 import Toybox.System;
 import Toybox.WatchUi;
 
-// Full-screen field: for the InPost parcel locker the QR code of the stored
-// values (QrCode), the white field around it being the quiet zone, and the
-// code in a small font under the quiet zone where it fits in the circle (to
-// type it in when the scanner fails); for any other locker, or while the
-// code or the phone is not set, the code in the largest number font that
-// fits with the phone number below. Smaller layouts show the code with a
-// small label. Black on white for MIP readability in sunlight.
+// Full-screen field: for the InPost or Allegro One parcel locker the QR code
+// of the stored values (QrCode), the white field around it being the quiet
+// zone, and the code in a small font under the quiet zone where it fits in
+// the circle (to type it in when the scanner fails), and the service over
+// the QR code (drawService); for any other locker,
+// or while the code or the phone is not set, the code in the largest number
+// font that fits with the phone number below. Smaller layouts show the code
+// with a small label. Black on white for MIP readability in sunlight.
 //
 // The Instinct parts (OCTAGON, HANDS, :octagon, :hands) are built only for
 // those watches; see Screen.mc.
@@ -27,13 +28,29 @@ class PickupCodeView extends WatchUi.DataField {
     // Cached from PickupData; see reload().
     var _code as String = "";
     private var _phone as String = "";
-    // QR code of the stored values in the InPost format, null for any other
-    // parcel locker and while the code or the phone is not set.
+    // QR code of the stored values in the chosen format (InPost or Allegro
+    // One), null when the QR setting is off and while the code or the phone
+    // is not set.
     private var _qr as Array<Number>? = null;
-    // InPost pickup QR payload: "P|+48534941658|474624" (decoded from the
+    // InPost pickup QR payload: "P|+48500600700|123456" (decoded from the
     // InPost app; qr.inpost.pl builds it from the same two values).
     private const QR_PREFIX = "P|+48";
     private const QR_SEPARATOR = "|";
+    // Allegro One Box payload: "D:500600700:123456" (decoded from the
+    // Allegro app, one sample; docs/allegro-one-qr.md).
+    private const ALLEGRO_PREFIX = "D:";
+    private const ALLEGRO_SEPARATOR = ":";
+    // The QR setting (PickupData.QR_*), for the service name over the QR code.
+    private var _qrType as Number = PickupData.QR_OFF;
+    // Quiet zone between the QR code and the service name over it, in
+    // modules, where it is not the one the code keeps under the QR code (see
+    // drawService): QrLayout.QR_QUIET, and on the semi-octagon screens
+    // QrLayout.QR_QUIET_MIN: with 3 modules "Allegro" ran 1-2 px into the cut
+    // corner of the Instinct 2 (tools/qr-layout.js).
+    (:notOctagon)
+    private const SERVICE_QUIET = 3;
+    (:octagon)
+    private const SERVICE_QUIET = 2;
 
     // Code fonts, largest first; the first one that fits the field is used:
     // numberThaiHot, numberHot, numberMedium, numberMild, large, medium,
@@ -197,9 +214,13 @@ class PickupCodeView extends WatchUi.DataField {
             : "";
         // No QR code under analog hands (HANDS): they cross the middle of
         // the screen and a QR code cannot be split around them.
+        var qrType = HANDS ? PickupData.QR_OFF : PickupData.getQrType();
+        _qrType = qrType;
         _qr = HANDS ? null
-            : (PickupData.isQr() && code.length() > 0 && phone.length() > 0)
-                ? QrCode.encode(QR_PREFIX + phone + QR_SEPARATOR + code)
+            : (qrType != PickupData.QR_OFF && code.length() > 0 && phone.length() > 0)
+                ? QrCode.encode(qrType == PickupData.QR_ALLEGRO
+                    ? ALLEGRO_PREFIX + phone + ALLEGRO_SEPARATOR + code
+                    : QR_PREFIX + phone + QR_SEPARATOR + code)
                 : null;
     }
 
@@ -283,6 +304,7 @@ class PickupCodeView extends WatchUi.DataField {
             // drawSecond), in one of the code fonts.
             var lay = QrLayout.find(self, dc, w, h, offX, offYs[0]);
             drawQr(dc, qr, w, h, lay[0]);
+            drawService(dc, w, h, offX, offYs[0], lay);
             if (lay[1] >= 0) {
                 // An index in the code fonts on the semi-octagons, in the
                 // second-line fonts elsewhere.
@@ -576,6 +598,55 @@ class PickupCodeView extends WatchUi.DataField {
         dc.drawText(align, y, font, text.substring(0, fieldW), Graphics.TEXT_JUSTIFY_CENTER);
         dc.drawText(align, y + Graphics.getFontAscent(font), font,
             text.substring(fieldW + 1, text.length()), Graphics.TEXT_JUSTIFY_CENTER);
+    }
+
+    // The service the QR code is for ("Paczkomat InPost", "Allegro One Box")
+    // over it in a small font, to tell the two QR codes apart: the longest
+    // of its names (ServiceInPost, ServiceAllegro) that fits, in the largest
+    // second-line font that fits but none larger than the code's; nothing
+    // where none fits. Centred over the QR code, as far above it as the code
+    // is under it (the quiet zone QrLayout found), or SERVICE_QUIET modules
+    // where the code is not shown. On the semi-octagon screens
+    // SERVICE_QUIET modules over the QR code at QR_X, QR_Y, in any of the
+    // two fonts (the code beside it is in a larger one); no full name fits
+    // there, a short one does. Few locals, as in fits(): w and h are reused
+    // for the doubled centre x (fits centres the line in a field that wide)
+    // and the bottom of the name.
+    hidden function drawService(dc as Dc, w as Number, h as Number, offX as Number,
+            offY as Number, lay as Array<Number>) as Void {
+        var names = WatchUi.loadResource(_qrType == PickupData.QR_ALLEGRO
+            ? Rez.Strings.ServiceAllegro : Rez.Strings.ServiceInPost) as String;
+        var f = 0;
+        if (OCTAGON) {
+            h = QR_Y - SERVICE_QUIET * lay[0] / 4;
+            w = 2 * QR_X + QrCode.N * lay[0] / 4;
+        } else {
+            // Top of the QR code (drawQr) less the quiet zone under it.
+            h = (h - lay[0] * QrCode.N) / 2;
+            if (lay[1] >= 0) {
+                f = lay[1];
+                h = 2 * h + lay[0] * QrCode.N - lay[2];
+            } else {
+                h -= SERVICE_QUIET * lay[0];
+            }
+        }
+        var i = 0 as Number?;
+        while (i != null) {
+            i = names.find("|");
+            var name = (i == null ? names : names.substring(0, i)) as String;
+            for (var fi = f; fi < SECOND_FONT_COUNT; fi++) {
+                var font = (Graphics.FONT_SMALL - 2 * fi) as FontDefinition;
+                var y = h - dc.getFontHeight(font);
+                if (y >= 0 && fits(offX, offY + y, h - y,
+                        dc.getTextWidthInPixels(name, font), w, 0)) {
+                    dc.drawText(w / 2, y, font, name, Graphics.TEXT_JUSTIFY_CENTER);
+                    return;
+                }
+            }
+            if (i != null) {
+                names = names.substring(i + 1, names.length()) as String;
+            }
+        }
     }
 
     // The QR code centred in the field with modules of m pixels.

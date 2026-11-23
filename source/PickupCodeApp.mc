@@ -10,6 +10,13 @@ class PickupCodeApp extends Application.AppBase {
         AppBase.initialize();
     }
 
+    function onStart(state as Dictionary?) as Void {
+        // No QR code under analog hands, so nothing to migrate.
+        if (!HANDS) {
+            PickupData.migrate();
+        }
+    }
+
     function getInitialView() as [Views] or [Views, InputDelegates] {
         _view = new PickupCodeView();
         return [ _view ];

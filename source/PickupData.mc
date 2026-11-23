@@ -15,8 +15,16 @@ module PickupData {
     const PROP_PHONE = "phone";
     const CODE_LEN = 6;
     const PHONE_LEN = 9;
-    // Whether the full-screen field shows the InPost QR code; off for other
-    // parcel lockers, where the same code and phone are typed in.
+    // Which QR code the full-screen field shows: QR_OFF (always text, for
+    // lockers that take the code and phone typed in), QR_INPOST or
+    // QR_ALLEGRO (Allegro One Box). The values are stored, and listed in
+    // settings/phone/settings.xml, so do not renumber them.
+    const PROP_QR_TYPE = "qrType";
+    const QR_OFF = 0;
+    const QR_INPOST = 1;
+    const QR_ALLEGRO = 2;
+    const QR_COUNT = 3;
+    // Boolean of v1.0 (InPost QR on or off); read only by migrate().
     const PROP_QR = "qr";
     // Digits per group on screen: "123 456", "500 000 000".
     const GROUP = 3;
@@ -30,10 +38,23 @@ module PickupData {
         return exactly(digitsOf(Properties.getValue(PROP_PHONE)), PHONE_LEN);
     }
 
-    // Off by default; a stored value that is not a boolean reads as off.
-    function isQr() as Boolean {
+    // Off by default; a stored value outside 0..QR_COUNT-1 reads as off.
+    function getQrType() as Number {
+        var value = Properties.getValue(PROP_QR_TYPE);
+        if (value instanceof Number && value >= 0 && value < QR_COUNT) {
+            return value;
+        }
+        return QR_OFF;
+    }
+
+    // v1.0 stored the InPost QR code as a boolean `qr`; a stored true becomes
+    // QR_INPOST and `qr` is cleared, so this runs once.
+    function migrate() as Void {
         var value = Properties.getValue(PROP_QR);
-        return value instanceof Boolean ? value : false;
+        if (value instanceof Boolean && value) {
+            Properties.setValue(PROP_QR_TYPE, QR_INPOST);
+            Properties.setValue(PROP_QR, false);
+        }
     }
 
     // The digits when there are exactly len of them, otherwise "".

@@ -4,9 +4,14 @@
              be told from a code that starts with zeros. Empty means not set. -->
         <property id="code" type="string"></property>
         <property id="phone" type="string"></property>
-        <!-- The full-screen field shows the InPost QR code of the values. Off by
-             default: the user turns it on for InPost; other parcel lockers take
-             the same code and phone typed in. -->
+        <!-- QR code on the full-screen field: 0 off (default; always text, other
+             parcel lockers take the code and phone typed in), 1 InPost, 2
+             Allegro One. Values are PickupData.QR_*. -->
+        <property id="qrType" type="number">0</property>
+        <!-- Only for migration: v1.0 stored the InPost QR code as this boolean.
+             PickupData.migrate() turns a stored true into qrType 1 and resets
+             it. No longer in the phone settings; do not remove, or the stored
+             value could not be read. -->
         <property id="qr" type="boolean">false</property>
     </properties>
 </resources>
